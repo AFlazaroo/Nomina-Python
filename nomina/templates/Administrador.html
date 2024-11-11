@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Panel del Administrador</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body id=panelAdmin>
+    
+    <h1>Panel del Administrador</h1>
+    <a href="{{ url_for('cerrar_sesion') }}" class="btn-cerrar-sesion">Cerrar Sesión</a>
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'areatrabajo')">Area de Trabajo</button>
+        <button class="tablinks" onclick="openTab(event, 'cargos')">Cargos</button>
+        <button class="tablinks" onclick="openTab(event, 'empleados')">Empleados</button>
+        <button class="tablinks" onclick="openTab(event, 'eps')">EPS</button>
+        <button class="tablinks" onclick="openTab(event, 'nomina')"> Nomina</button>
+        <button class="tablinks" onclick="openTab(event, 'novedades')">Novedades</button>
+        <button class="tablinks" onclick="openTab(event, 'pension')">Pension</button>
+        <button class="tablinks" onclick="openTab(event, 'reportes')">Reportes</button>
+        <button class="tablinks" onclick="openTab(event, 'saludpension')">Salud Pension</button>
+        <button class="tablinks" onclick="openTab(event, 'usuarios')">Usuarios</button>
+    </div>
+
+    
+    <div id="areatrabajo" class="tabcontent">
+        <h2 id=subtitulos >Area de Trabajo</h2>
+        <h3>Se administra las Area de Trabajo</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaArea" placeholder="Buscar por ID">
+            <button onclick="buscarArea()">Buscar</button>
+
+            <button onclick="mostrarFormulario()">Agregar Area de trabajo</button>
+            <div id="formularioModal" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_AreaAdmin') }}">
+                    <input type="text" name="idAreaTrabajo" placeholder="idAreaTrabajo" required>
+                    <input type="text" name="nombre" placeholder="nombre" required>
+                    <input type="submit" value="Agregar">
+                </form>
+            </div>
+        </div>
+        <table border="3"id="tablaBar">
+            <tr>
+                <th>Id Area de Trabajo</th>
+                <th>Nombre</th>
+            </tr>
+            {% for areatrabajo in areatrabajo %}
+            <tr>
+                <td>{{ areatrabajo.idAreaTrabajo }}</td>
+                <td>{{ areatrabajo.nombre }}</td>
+                <td>
+                <button onclick="mostrarFormularioModificacion({{ areatrabajo.idAreaTrabajo }})">Modificar</button>
+                <br>
+                <div id="modificarForm{{areatrabajo.idAreaTrabajo }}" class="modificar-formulario" style="display:none;">
+                    <form method="POST" action="{{ url_for('modificar_AreaAdmin', id=areatrabajo.idAreaTrabajo) }}">
+                        <input type="text" name="idAreaTrabajo" value="{{ areatrabajo.idAreaTrabajo }}" required>
+                        <input type="text" name="nombre" value="{{ areatrabajo.nombre }}" required>
+                        <input type="submit" value="Modificar">
+                    </form>
+                </div>
+                <br>
+                    <a href="{{ url_for('eliminar_AreaAdmin', id=areatrabajo.idAreaTrabajo) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta asignación?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+
+    <div id="cargos" class="tabcontent">
+        <h2 id="subtitulos">Cargos</h2>
+        <h3>Se administra los Cargos</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaCargo" placeholder="Buscar por ID">
+            <button onclick="buscarCargo()">Buscar</button>
+    
+            <button onclick="mostrarFormularioCargo()">Agregar Cargo</button>
+            <div id="formularioModalCargo" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_CargoAdmin') }}">
+                    <input type="text" name="nombre" placeholder="Nombre del Cargo" required>
+                    <input type="submit" value="Agregar">
+                </form>
+            </div>
+        </div>
+        <table border="3" id="tablaCargo">
+            <tr>
+                <th>Id Cargo</th>
+                <th>Nombre</th>
+            </tr>
+            {% for cargo in cargos %}
+            <tr>
+                <td>{{ cargo.idCargo }}</td>
+                <td>{{ cargo.nombre }}</td>
+                <td>
+                    <button onclick="mostrarFormularioModificacionCargo({{ cargo.idCargo }})">Modificar</button>
+                    <br>
+                    <div id="modificarFormCargo{{ cargo.idCargo }}" class="modificar-formulario" style="display:none;">
+                        <form method="POST" action="{{ url_for('modificar_CargoAdmin', id=cargo.idCargo) }}">
+                            <input type="text" name="nombre" value="{{ cargo.nombre }}" required>
+                            <input type="submit" value="Modificar">
+                        </form>
+                    </div>
+                    <br>
+                    <a href="{{ url_for('eliminar_CargoAdmin', id=cargo.idCargo) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar este cargo?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+    
+    <div id="empleados" class="tabcontent">
+        <h2 id="subtitulos">Empleados</h2>
+        <h3>Se administran los empleados</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaEmpleado" placeholder="Buscar por ID">
+            <button onclick="buscarEmpleado()">Buscar</button>
+    
+            <button onclick="mostrarFormularioEmpleado()">Agregar Empleado</button>
+            <div id="formularioModalEmpleado" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_EmpleadoAdmin') }}">
+                    <input type="text" name="nombre" placeholder="Nombre del Empleado" required>
+                    <input type="text" name="apellido" placeholder="Apellido del Empleado" required>
+                    
+                  
+                    <select name="idCargo" required>
+                        <option value="" disabled selected>Seleccione un Cargo</option>
+                        {% for cargo in cargos %}
+                        <option value="{{ cargo.idCargo }}">{{ cargo.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    
+                    <select name="idAreaTrabajo" required>
+                        <option value="" disabled selected>Seleccione un Área de Trabajo</option>
+                        {% for areatrabajo in areatrabajo %}
+                            <option value="{{ areatrabajo.idAreaTrabajo }}">{{ areatrabajo.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <input type="number" step="0.01" name="salario" placeholder="Salario" required>
+                    
+                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="text" name="telefono" placeholder="Teléfono" required>
+                    
+                   
+                    <input type="date" name="fechaIngreso" placeholder="Fecha de Ingreso" required>
+                    <input type="date" name="fechaNacimiento" placeholder="Fecha de Nacimiento" required>
+
+                    <input type="text" name="idEPS" placeholder="ID de EPS" required>
+
+                    <input type="text" name="idPension" placeholder="ID de Pensión" required>
+                    
+                    <input type="submit" value="Agregar">
+                </form>
+                
+                
+            </div>
+        </div>
+    
+        <table border="3" id="tablaEmpleado">
+            <tr>
+                <th>Id Empleado</th>
+                <th>Nombre</th>
+                <th>Cargo</th>
+                <th>Área de Trabajo</th>
+                <th>Salario</th>
+            </tr>
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{ empleado.idEmpleado }}</td>
+                <td>{{ empleado.nombre }}</td>
+                <td>{{ empleado.idCargo }}</td> 
+                <td>{{ empleado.idAreaTrabajo }}</td> 
+                <td>{{ empleado.salario }}</td>
+                <td>
+                    <button onclick="mostrarFormularioModificacionEmpleado({{ empleado.idEmpleado }})">Modificar</button>
+                    <br>
+                    <div id="modificarFormEmpleado{{ empleado.idEmpleado }}" class="modificar-formulario" style="display:none;">
+                        <form method="POST" action="{{ url_for('modificar_EmpleadoAdmin', id=empleado.idEmpleado) }}">
+                            <input type="text" name="nombre" value="{{ empleado.nombre }}" required>
+                            <select name="cargo_id" required>
+                                {% for cargo in cargos %}
+                                    <option value="{{ cargo.idCargo }}" {% if cargo.idCargo == empleado.cargo_id %} selected {% endif %}>{{ cargo.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <select name="area_trabajo_id" required>
+                                {% for area in areatrabajo %}
+                                    <option value="{{ area.idAreaTrabajo }}" {% if area.idAreaTrabajo == empleado.area_trabajo_id %} selected {% endif %}>{{ area.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="text" name="salario" value="{{ empleado.salario }}" required>
+                            <input type="submit" value="Modificar">
+                        </form>
+                    </div>
+                    <br>
+                    <a href="{{ url_for('eliminar_EmpleadoAdmin', id=empleado.idEmpleado) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar este empleado?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+        
+
+    <div id="eps" class="tabcontent">
+        <h2 id="subtitulos">EPS</h2>
+        <h3>Se administra la lista de EPS</h3>
+        <div class="search">
+            <button onclick="mostrarFormularioEPS()">Agregar EPS</button>
+            <div id="formularioModalEPS" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_EPS') }}">
+                    <input type="text" name="nombre" placeholder="Nombre de la EPS" required>
+                    <input type="submit" value="Agregar">
+                </form>
+            </div>
+        </div>
+        <table border="3" id="tablaEPS">
+            <tr>
+                <th>Id EPS</th>
+                <th>Nombre</th>
+                <th>Acciones</th>
+            </tr>
+            {% for ep in eps %}
+            <tr>
+                <td>{{ ep.idEPS }}</td>
+                <td>{{ ep.nombre }}</td>
+                <td>
+                    <button onclick="mostrarFormularioModificacionEPS({{ ep.idEPS }})">Modificar</button>
+                    <div id="modificarFormEPS{{ ep.idEPS }}" class="modificar-formulario" style="display:none;">
+                        <form method="POST" action="{{ url_for('modificar_EPS', id=ep.idEPS) }}">
+                            <input type="text" name="nombre" value="{{ ep.nombre }}" required>
+                            <input type="submit" value="Modificar">
+                        </form>
+                    </div>
+                    <a href="{{ url_for('eliminar_EPS', id=ep.idEPS) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta EPS?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+    <div id="nomina" class="tabcontent">
+        <h2 id="subtitulos">Nómina</h2>
+        <h3>Se administra la Nómina de los empleados</h3>
+        <div class="search">
+            <button onclick="mostrarFormularioNomina()">Agregar Nómina</button>
+            <div id="formularioModalNomina" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_Nomina') }}">
+                    <input type="text" name="idEmpleado" placeholder="ID Empleado" required>
+                    <input type="text" name="mesAnio" placeholder="Mes y Año (YYYY-MM)" required>
+                    <input type="number" step="0.01" name="salarioBase" placeholder="Salario Base" required>
+                    <input type="number" step="0.01" name="bonificacion" placeholder="Bonificación">
+                    <input type="number" step="0.01" name="apoyoTransporte" placeholder="Apoyo Transporte">
+                    <input type="submit" value="Agregar">
+                </form>
+            </div>
+        </div>
+        <table border="3" id="tablaNomina">
+            <tr>
+                <th>ID Nómina</th>
+                <th>ID Empleado</th>
+                <th>Mes y Año</th>
+                <th>Salario Base</th>
+                <th>Bonificación</th>
+                <th>Apoyo Transporte</th>
+                <th>Total Salario</th>
+                <th>Acciones</th>
+            </tr>
+            {% for registro in nomina %}
+            <tr>
+                <td>{{ registro.idNomina }}</td>
+                <td>{{ registro.idEmpleado }}</td>
+                <td>{{ registro.mesAnio }}</td>
+                <td>{{ registro.salarioBase }}</td>
+                <td>{{ registro.bonificacion }}</td>
+                <td>{{ registro.apoyoTransporte }}</td>
+                <td>{{ registro.totalSalario }}</td>
+                <td>
+                    <button onclick="mostrarFormularioModificacionNomina({{ registro.idNomina }})">Modificar</button>
+                    <br>
+                    <div id="modificarFormNomina{{ registro.idNomina }}" class="modificar-formulario" style="display:none;">
+                        <form method="POST" action="{{ url_for('modificar_Nomina', id=registro.idNomina) }}">
+                            <input type="text" name="mesAnio" value="{{ registro.mesAnio }}" required>
+                            <input type="number" step="0.01" name="salarioBase" value="{{ registro.salarioBase }}" required>
+                            <input type="number" step="0.01" name="bonificacion" value="{{ registro.bonificacion }}">
+                            <input type="number" step="0.01" name="apoyoTransporte" value="{{ registro.apoyoTransporte }}">
+                            <input type="submit" value="Modificar">
+                        </form>
+                    </div>
+                    <br>
+                    <a href="{{ url_for('eliminar_Nomina', id=registro.idNomina) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar este registro de nómina?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div id="novedades" class="tabcontent">
+        <h2 id="subtitulos">Novedades</h2>
+        <h3>Administrar las Novedades</h3>
+        <div class="search">
+            <button onclick="mostrarFormularioNovedad()">Agregar Novedad</button>
+            <div id="formularioModalNovedad" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_Novedad') }}">
+                    <input type="text" name="idEmpleado" placeholder="ID Empleado" required>
+                    <select name="tipoNovedad" required>
+                        <option value="Incapacidad">Incapacidad</option>
+                        <option value="Vacaciones">Vacaciones</option>
+                        <option value="Bonificación">Bonificación</option>
+                        <option value="ApoyoTransporte">Apoyo Transporte</option>
+                    </select>
+                    <input type="date" name="fechaInicio" placeholder="Fecha Inicio" required>
+                    <input type="date" name="fechaFin" placeholder="Fecha Fin">
+                    <textarea name="detalle" placeholder="Detalle de la Novedad" required></textarea>
+                    <input type="submit" value="Agregar">
+                </form>
+            </div>
+        </div>
+        <table border="3" id="tablaNovedades">
+            <tr>
+                <th>ID Novedad</th>
+                <th>ID Empleado</th>
+                <th>Tipo de Novedad</th>
+                <th>Fecha de Inicio</th>
+                <th>Fecha de Fin</th>
+                <th>Detalle</th>
+                <th>Acciones</th>
+            </tr>
+            {% for novedad in novedades %}
+            <tr>
+                <td>{{ novedad.idNovedad }}</td>
+                <td>{{ novedad.idEmpleado }}</td>
+                <td>{{ novedad.tipoNovedad }}</td>
+                <td>{{ novedad.fechaInicio }}</td>
+                <td>{{ novedad.fechaFin }}</td>
+                <td>{{ novedad.detalle }}</td>
+                <td>
+                    <button onclick="mostrarFormularioModificacionNovedad({{ novedad.idNovedad }})">Modificar</button>
+                    <br>
+                    <div id="modificarFormNovedad{{ novedad.idNovedad }}" class="modificar-formulario" style="display:none;">
+                        <form method="POST" action="{{ url_for('modificar_Novedad', id=novedad.idNovedad) }}">
+                            <select name="tipoNovedad" required>
+                                <option value="Incapacidad" {% if novedad.tipoNovedad == 'Incapacidad' %}selected{% endif %}>Incapacidad</option>
+                                <option value="Vacaciones" {% if novedad.tipoNovedad == 'Vacaciones' %}selected{% endif %}>Vacaciones</option>
+                                <option value="Bonificación" {% if novedad.tipoNovedad == 'Bonificación' %}selected{% endif %}>Bonificación</option>
+                                <option value="ApoyoTransporte" {% if novedad.tipoNovedad == 'ApoyoTransporte' %}selected{% endif %}>Apoyo Transporte</option>
+                            </select>
+                            <input type="date" name="fechaInicio" value="{{ novedad.fechaInicio }}" required>
+                            <input type="date" name="fechaFin" value="{{ novedad.fechaFin }}">
+                            <textarea name="detalle" required>{{ novedad.detalle }}</textarea>
+                            <input type="submit" value="Modificar">
+                        </form>
+                    </div>
+                    <br>
+                    <a href="{{ url_for('eliminar_Novedad', id=novedad.idNovedad) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta novedad?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+
+
+<div id="pension" class="tabcontent">
+    <h2>Pensión</h2>
+    <h3>Administrar Pensión</h3>
+    <div class="search">
+        <button onclick="mostrarFormularioPension()">Agregar Pensión</button>
+        <div id="formularioPensionModal" style="display:none;">
+            <form method="POST" action="{{ url_for('agregar_Pension') }}">
+                <input type="text" name="nombre" placeholder="Nombre de la Pensión" required>
+                <input type="submit" value="Agregar">
+            </form>
+        </div>
+    </div>
+    <table border="3">
+        <tr>
+            <th>Id Pensión</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+        </tr>
+        {% for pension_item in pension %}
+        <tr>
+            <td>{{ pension_item.idPension }}</td>
+            <td>{{ pension_item.nombre }}</td>
+            <td>
+                <button onclick="mostrarFormularioModificacionPension({{ pension_item.idPension }})">Modificar</button>
+                <div id="modificarPensionForm{{ pension_item.idPension }}" class="modificar-formulario" style="display:none;">
+                    <form method="POST" action="{{ url_for('modificar_Pension', id=pension_item.idPension) }}">
+                        <input type="text" name="nombre" value="{{ pension_item.nombre }}" required>
+                        <input type="submit" value="Modificar">
+                    </form>
+                </div>
+                <a href="{{ url_for('eliminar_Pension', id=pension_item.idPension) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta pensión?');">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div id="reportes" class="tabcontent">
+    <h2>Reportes</h2>
+    <h3>Administrar Reportes</h3>
+    <div class="search">
+        <button onclick="mostrarFormularioReporte()">Agregar Reporte</button>
+        <div id="formularioReporteModal" style="display:none;">
+            <form method="POST" action="{{ url_for('agregar_Reporte') }}">
+                <select name="tipoReporte" required>
+                    <option value="Nomina">Nómina</option>
+                    <option value="Individual">Individual</option>
+                    <option value="SaludPension">Salud y Pensión</option>
+                    <option value="Novedades">Novedades</option>
+                </select>
+                <textarea name="contenido" placeholder="Contenido del reporte" required></textarea>
+                <input type="text" name="idUsuario" placeholder="ID del Usuario" required>
+                <input type="submit" value="Agregar">
+            </form>
+        </div>
+    </div>
+    <table border="3">
+        <tr>
+            <th>Id Reporte</th>
+            <th>Tipo de Reporte</th>
+            <th>Fecha de Generación</th>
+            <th>ID de Usuario</th>
+            <th>Acciones</th>
+        </tr>
+        {% for reporte in reportes %}
+        <tr>
+            <td>{{ reporte.idReporte }}</td>
+            <td>{{ reporte.tipoReporte }}</td>
+            <td>{{ reporte.fechaGeneracion }}</td>
+            <td>{{ reporte.idUsuario }}</td>
+            <td>
+                <button onclick="eliminarReporte({{ reporte.idReporte }})">Eliminar</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div id="saludpension" class="tabcontent">
+    <h2>Salud y Pensión</h2>
+    <h3>Administrar Salud y Pensión</h3>
+    <div class="search">
+        <button onclick="mostrarFormularioSaludPension()">Agregar Salud y Pensión</button>
+        <div id="formularioSaludPensionModal" style="display:none;">
+            <form method="POST" action="{{ url_for('agregar_SaludPension') }}">
+                <input type="text" name="idEmpleado" placeholder="ID del Empleado" required>
+                <input type="text" name="idEPS" placeholder="ID de EPS" required>
+                <input type="text" name="idPension" placeholder="ID de Pensión" required>
+                <input type="date" name="fechaRegistro" required>
+                <input type="submit" value="Agregar">
+            </form>
+        </div>
+    </div>
+    <table border="3">
+        <tr>
+            <th>Id Salud y Pensión</th>
+            <th>ID Empleado</th>
+            <th>ID EPS</th>
+            <th>ID Pensión</th>
+            <th>Fecha de Registro</th>
+            <th>Acciones</th>
+        </tr>
+        {% for sp in saludpension %}
+        <tr>
+            <td>{{ sp.idSaludPension }}</td>
+            <td>{{ sp.idEmpleado }}</td>
+            <td>{{ sp.idEPS }}</td>
+            <td>{{ sp.idPension }}</td>
+            <td>{{ sp.fechaRegistro }}</td>
+            <td>
+                <a href="{{ url_for('eliminar_SaludPension', id=sp.idSaludPension) }}">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div id="usuarios" class="tabcontent">
+    <h2>Usuarios</h2>
+    <h3>Administrar Usuarios</h3>
+    <button onclick="mostrarFormularioUsuario()">Agregar Usuario</button>
+    
+    <!-- Formulario para agregar un usuario -->
+    <div id="formularioUsuarioModal" style="display:none;">
+        <form method="POST" action="{{ url_for('agregar_Usuario') }}">
+            <input type="text" name="nombreUsuario" placeholder="Nombre de Usuario" required>
+            <input type="email" name="email" placeholder="Correo Electrónico" required>
+            <select name="rol" required>
+                <option value="Admin">Administrador</option>
+                <option value="Empleado">Empleado</option>
+            </select>
+            <input type="password" name="contrasena" placeholder="Contraseña" required>
+            <input type="submit" value="Agregar Usuario">
+        </form>
+    </div>
+    
+    <!-- Mostrar lista de usuarios -->
+    <table border="3">
+        <tr>
+            <th>ID Usuario</th>
+            <th>Nombre de Usuario</th>
+            <th>Correo Electrónico</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+        </tr>
+        {% for usuario in usuarios %}
+        <tr>
+            <td>{{ usuario.idUsuario }}</td>
+            <td>{{ usuario.nombreUsuario }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.rol }}</td>
+            <td>
+                <a href="{{ url_for('modificar_Usuario', id=usuario.idUsuario) }}">Modificar</a>
+                <button onclick="eliminarUsuario({{ usuario.idUsuario }})">Eliminar</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+            
+    <script>
+        function mostrarFormulario() {
+            document.getElementById('formularioModal').style.display = 'block';
+        }
+        function mostrarFormularioModificacion(idAreaTrabajo) {
+            var formulario = document.getElementById('modificarForm' + ididAreaTrabajo);
+            formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+        }
+        function buscarArea() {
+            var idAreaTrabajo = document.getElementById('inputBusquedaArea').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaArea tr');
+        
+            filas.forEach(function(fila) {
+                var idAreaTrabajo = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idAreaTrabajo.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+
+<script>
+    function mostrarFormularioCargo() {
+        document.getElementById('formularioModalCargo').style.display = 'block';
+    }
+    function mostrarFormularioModificacionCargo(idCargo) {
+        var formulario = document.getElementById('modificarFormCargo' + idCargo);
+        formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+    }
+    function buscarCargo() {
+        var idBusqueda = document.getElementById('inputBusquedaCargo').value.toLowerCase();
+        var filas = document.querySelectorAll('#tablaCargo tr');
+        
+        filas.forEach(function(fila) {
+            var idCargo = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+            if (idCargo.includes(idBusqueda) && idBusqueda !== '') {
+                fila.style.backgroundColor = 'yellow';
+            } else {
+                fila.style.backgroundColor = '';
+            }
+        });
+    }
+</script>
+
+    <script>
+
+function mostrarFormularioEmpleado() {
+    document.getElementById('formularioModalEmpleado').style.display = 'block';
+}
+
+function mostrarFormularioModificacionEmpleado(idEmpleado) {
+    var formulario = document.getElementById('modificarFormEmpleado' + idEmpleado);
+    formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+}
+
+function buscarEmpleado() {
+    var idBusqueda = document.getElementById('inputBusquedaEmpleado').value.toLowerCase();
+    var filas = document.querySelectorAll('#tablaEmpleado tr');
+    
+    filas.forEach(function(fila) {
+        var idEmpleado = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+        if (idEmpleado.includes(idBusqueda) && idBusqueda !== '') {
+            fila.style.backgroundColor = 'yellow';
+        } else {
+            fila.style.backgroundColor = '';
+        }
+    });
+}
+
+    </script>
+
+    <script>
+
+function mostrarFormularioEPS() {
+    document.getElementById('formularioModalEPS').style.display = 'block';
+}
+
+function mostrarFormularioModificacionEPS(idEPS) {
+    var formulario = document.getElementById('modificarFormEPS' + idEPS);
+    formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+}
+
+    </script>
+
+<script>
+    function mostrarFormularioNomina() {
+        document.getElementById('formularioModalNomina').style.display = 'block';
+    }
+
+    function mostrarFormularioModificacionNomina(idNomina) {
+        var formulario = document.getElementById('modificarFormNomina' + idNomina);
+        formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+
+<script>
+    function mostrarFormularioNovedad() {
+        document.getElementById('formularioModalNovedad').style.display = 'block';
+    }
+
+    function mostrarFormularioModificacionNovedad(idNovedad) {
+        var formulario = document.getElementById('modificarFormNovedad' + idNovedad);
+        formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+
+<script>
+    function mostrarFormularioPension() {
+        document.getElementById('formularioPensionModal').style.display = 'block';
+    }
+
+    function mostrarFormularioModificacionPension(idPension) {
+        var formulario = document.getElementById('modificarPensionForm' + idPension);
+        formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+
+<script>
+    function mostrarFormularioReporte() {
+        document.getElementById('formularioReporteModal').style.display = 'block';
+    }
+    
+    function eliminarReporte(id) {
+        if (confirm('¿Estás seguro de que deseas eliminar este reporte?')) {
+            window.location.href = '/eliminar_Reporte/' + id;
+        }
+    }
+    </script>
+
+<script>
+
+    function mostrarFormularioSaludPension() {
+        var formulario = document.getElementById("formularioSaludPensionModal");
+        if (formulario.style.display === "none" || formulario.style.display === "") {
+            formulario.style.display = "block";
+        } else {
+            formulario.style.display = "none";
+        }
+    }
+
+ 
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+
+     
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+      
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+</script>
+
+<script>
+    function mostrarFormularioUsuario() {
+        document.getElementById('formularioUsuarioModal').style.display = 'block';
+    }
+    
+    function eliminarUsuario(id) {
+        if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+            window.location.href = '/eliminar_Usuario/' + id;
+        }
+    }
+    </script>
+
+</body>
+</html>

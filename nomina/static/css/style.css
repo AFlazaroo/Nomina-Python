@@ -1,0 +1,271 @@
+header{
+	background-color:black;
+	color:purple; 
+	text-align:center; 
+	padding:5px
+}
+#log {
+    font-family: 'Century Gothic', 'Futura', sans-serif;
+    background-image: url('./Fondo_2.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-Color:green;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+.resaltar {
+    background-color: yellow;
+}
+.btn-cerrar-sesion {
+    /* Tus estilos para el botón aquí */
+    padding: 10px;
+    background-color: #f44336;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+    display: inline-block;
+    float: right;
+}
+
+.login-container {
+    position: absolute;
+    margin-top: 450px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8); /* Fondo semitransparente */
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    
+}
+input[type="text"], input[type="password"] {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: calc(100% - 22px); /* 100% width - padding */
+}
+
+input[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+/* Estilos básicos para las pestañas */
+.tab {
+    overflow: hidden;
+    border: 1px solid #f9f9f9;
+    background-color: #b00e0e;
+    text-align:center; 
+}
+
+.tab button {
+    background-color: inherit;
+    float: center;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+
+}
+
+.tab button:hover {
+    background-color: #860000;
+}
+
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Estilo para el contenido de las pestañas */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+#panelAdmin{
+   
+    background: #e8e8e8;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Century Gothic', 'Futura', sans-serif;
+    text-align: center;
+}
+
+header {
+    background: linear-gradient(to right, #0A2342, #16324C);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    box-shadow: 0 4px 8px 0 rgba(10, 35, 66, 0.6);
+}
+
+
+h1 {
+    font-size: 36px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px #000000;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid #f7fbff;
+    padding-bottom: 10px;
+}
+
+
+.main_label {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.tabcontent, .vista-container {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+input[type="text"], input[type="password"], input[type="email"], textarea {
+    margin: 10px 0;
+    padding: 10px;
+    border: 2px solid #1B3B6F;
+    border-radius: 5px;
+    width: calc(100% - 24px);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input[type="submit"], .btn-editar, .btn-eliminar, .btn-asignar, .btn-agregar {
+    padding: 10px 20px;
+    border: none;
+    background-color: #2d6ad3;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="submit"]:hover, .btn-editar:hover, .btn-eliminar:hover, .btn-asignar:hover, .btn-agregar:hover {
+    background-color: #0A2342;
+    opacity: 0.9;
+}
+
+
+.tab {
+    overflow: hidden;
+    background-color: #2E5A88;
+    text-align: center;
+}
+
+.tab button {
+    background-color: inherit;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: background-color 0.3s ease;
+    color: white;
+}
+
+.tab button:hover, .tab button.active {
+    background-color: #1B3B6F;
+}
+
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #1B3B6F;
+    color: white;
+    text-shadow: none;
+}
+
+table tr:hover {
+    background-color: #f4f4f4;
+    cursor: pointer;
+}
+
+
+.btn-buscar {
+    padding: 10px 20px;
+    border: none;
+    background-color: #2d6ad3; 
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold; 
+}
+
+.btn-buscar:hover {
+    background-color: #0A2342; 
+    opacity: 0.9;
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .login-container, .tabcontent, .vista-container {
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    table th {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    table tr {
+        margin: 0 0 20px 0;
+    }
+
+    table td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    table td:before {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        content: attr(data-title);
+    }
+
+}

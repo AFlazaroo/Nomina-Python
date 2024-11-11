@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Nomina de Empleados </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body id=log>
+    <h1>Bienvenido a Sistema de Nomina </h1>
+    <div class="login-container">
+        {% if mensaje %}
+    <div class="alert">
+        {{ mensaje }}
+    </div>
+        {% endif %}
+        <form action="/login" method="post">
+            <input type="text" name="username" placeholder="Nombre de usuario">
+            <input type="password" name="password" placeholder="Contraseña">
+            <input type="submit" value="Iniciar Sesión">
+        </form>
+    </div>
+</body>
+</html>
