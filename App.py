@@ -120,50 +120,6 @@ def admin_dashboard():
 
 
 
-@app.route('/agregar_AreaAdmin', methods=['POST'])
-def agregar_AreaAdmin():
-    if request.method == 'POST':
-        
-        idAreaTrabajo = request.form['idAreaTrabajo']
-        nombre = request.form['nombre']
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO areatrabajo (idAreaTrabajo, nombre) VALUES ( %s, %s)", ( idAreaTrabajo, nombre))
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-    return redirect(url_for('admin_dashboard'))
-
-@app.route('/modificar_AreaAdmin/<int:id>', methods=['GET', 'POST'])
-def modificar_AreaAdmin(id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if request.method == 'POST':
-        id = request.form['idAreaTrabajo']
-        nombre = request.form['nombre']
-       
-        cursor.execute("UPDATE areatrabajo SET  nombre = %s WHERE idAreaTrabajo = %s", ( nombre,id))
-        conn.commit()
-
-        cursor.close()
-        conn.close()
-
-        return redirect(url_for('admin_dashboard'))
-    
-@app.route('/eliminar_AreaAdmin/<int:id>')
-def eliminar_AreaAdmin(id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM areatrabajo WHERE idAreaTrabajo = %s", (id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return redirect(url_for('admin_dashboard'))  
 
 
 
@@ -187,6 +143,50 @@ def empleado_dashboard():
 
 if __name__ == '_main_':
     app.run(debug=True)
+
+
+@app.route('/agregar_AreaAdmin', methods=['POST'])
+def agregar_AreaAdmin():
+    if request.method == 'POST':
+        nombre = request.form['nombre']  # Sólo necesitas el nombre, no el idAreaTrabajo
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO areatrabajo (nombre) VALUES (%s)", (nombre,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/modificar_AreaAdmin/<int:id>', methods=['POST'])
+def modificar_AreaAdmin(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        cursor.execute("UPDATE areatrabajo SET nombre = %s WHERE idAreaTrabajo = %s", (nombre, id))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for('admin_dashboard'))
+
+    
+@app.route('/eliminar_AreaAdmin/<int:id>')
+def eliminar_AreaAdmin(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM areatrabajo WHERE idAreaTrabajo = %s", (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for('admin_dashboard'))
+
 
 
 @app.route('/agregar_CargoAdmin', methods=['POST'])
@@ -623,35 +623,62 @@ def agregar_Usuario():
         return redirect(url_for('admin_dashboard'))
     
 
+from flask import request, render_template, redirect, url_for
+from werkzeug.security import generate_password_hash
+import pymysql
+
+# Asumiendo que tienes la función get_db_connection definida en otro lugar
+# y que la conexión se establece correctamente.
+
 @app.route('/modificar_Usuario/<int:id>', methods=['GET', 'POST'])
 def modificar_Usuario(id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # Si la solicitud es POST, se realiza la actualización
     if request.method == 'POST':
         nombreUsuario = request.form['nombreUsuario']
         email = request.form['email']
         rol = request.form['rol']
         contrasena = request.form['contrasena']
-        
-        if contrasena:  
+
+        # Si se proporciona una contraseña nueva, la encriptamos y actualizamos
+        if contrasena:
             contrasenaHash = generate_password_hash(contrasena)
-            cursor.execute("UPDATE usuarios SET nombreUsuario = %s, email = %s, rol = %s, contrasenaHash = %s WHERE idUsuario = %s", 
-                           (nombreUsuario, email, rol, contrasenaHash, id))
-        else:  
-            cursor.execute("UPDATE usuarios SET nombreUsuario = %s, email = %s, rol = %s WHERE idUsuario = %s", 
-                           (nombreUsuario, email, rol, id))
-        
+            cursor.execute("""
+                UPDATE usuarios
+                SET nombreUsuario = %s, email = %s, rol = %s, contrasenaHash = %s
+                WHERE idUsuario = %s
+            """, (nombreUsuario, email, rol, contrasenaHash, id))
+        else:
+            # Si no se proporciona una contraseña, solo actualizamos los otros campos
+            cursor.execute("""
+                UPDATE usuarios
+                SET nombreUsuario = %s, email = %s, rol = %s
+                WHERE idUsuario = %s
+            """, (nombreUsuario, email, rol, id))
+
+        # Guardar cambios en la base de datos
         conn.commit()
 
+        # Cerrar conexión con la base de datos
+        cursor.close()
+        conn.close()
 
+        # Redirigir a la lista de usuarios o a la página de administración
+        return redirect(url_for('admin_dashboard'))  # Cambia 'usuarios_lista' por la ruta de tu elección
+
+    # Si la solicitud es GET, se carga el formulario con los datos actuales del usuario
     cursor.execute("SELECT * FROM usuarios WHERE idUsuario = %s", (id,))
     usuario = cursor.fetchone()
 
+    # Cerrar conexión después de obtener el usuario
     cursor.close()
     conn.close()
 
+    # Renderizar la plantilla para modificar el usuario
     return render_template('ModificarUsuario.html', usuario=usuario)
+
 
 @app.route('/eliminar_Usuario/<int:id>')
 def eliminar_Usuario(id):

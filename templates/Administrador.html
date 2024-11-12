@@ -698,5 +698,34 @@ function mostrarFormularioModificacionEPS(idEPS) {
         }
     }
     </script>
+
+<script>
+    // Función para mostrar el formulario de agregar área de trabajo
+    function mostrarFormulario() {
+        document.getElementById('formularioModal').style.display = 'block';
+    }
+
+    // Función para mostrar el formulario de modificación del área de trabajo
+    function mostrarFormularioModificacion(idAreaTrabajo) {
+        var formulario = document.getElementById('modificarForm' + idAreaTrabajo);
+        formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Función para buscar áreas de trabajo por ID
+    function buscarArea() {
+        var idBusqueda = document.getElementById('inputBusquedaArea').value.toLowerCase();
+        var filas = document.querySelectorAll('#tablaBar tr');
+        
+        filas.forEach(function(fila) {
+            var idAreaTrabajo = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+            if (idAreaTrabajo.includes(idBusqueda) && idBusqueda !== '') {
+                fila.style.backgroundColor = 'yellow';
+            } else {
+                fila.style.backgroundColor = '';
+            }
+        });
+    }
+</script>
+
 </body>
 </html>

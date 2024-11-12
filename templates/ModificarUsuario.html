@@ -1,0 +1,19 @@
+<form method="POST">
+    <div class="form-group">
+        <label for="nombreUsuario">Nombre de Usuario</label>
+        <input type="text" class="form-control" id="nombreUsuario" name="nombreUsuario" value="{{ usuario.nombreUsuario }}" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ usuario.email }}" required>
+    </div>
+    <div class="form-group">
+        <label for="rol">Rol</label>
+        <input type="text" class="form-control" id="rol" name="rol" value="{{ usuario.rol }}" required>
+    </div>
+    <div class="form-group">
+        <label for="contrasena">Contraseña</label>
+        <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Deja vacío si no deseas cambiarla">
+    </div>
+    <button type="submit" class="btn btn-primary">Modificar</button>
+</form>
