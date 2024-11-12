@@ -12,6 +12,7 @@ from email.mime.text import MIMEText
 from werkzeug.security import generate_password_hash
 from io import BytesIO
 import base64
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -241,7 +242,7 @@ def agregar_EmpleadoAdmin():
         cargos = cursor.fetchall()
         cursor.execute("SELECT * FROM AreaTrabajo")
         area_trabajo = cursor.fetchall()
-
+ 
         cursor.close()
 
         
@@ -813,19 +814,26 @@ def graficos():
 
 
     
-
+from flask import request, render_template
 from datetime import datetime
+
 @app.route('/empleados', methods=['GET'])
 def empleados():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Recoger parámetros de la URL para ordenar los empleados
-    ordenar_por = request.args.get('ordenar_por', 'nombre')  # Por defecto ordenamos por nombre
-    direccion = request.args.get('direccion', 'asc')  # Ascendente por defecto
-
-    # Consulta para obtener empleados con el orden dinámico
-    query = f"""
+    # Obtener parámetros de filtrado
+    ordenar_por = request.args.get('ordenar_por', 'nombre')
+    direccion = request.args.get('direccion', 'asc')
+    
+    # Filtrado por fechas, área de trabajo y cargo
+    fecha_inicio = request.args.get('fecha_inicio')
+    fecha_fin = request.args.get('fecha_fin')
+    id_area_trabajo = request.args.get('areatrabajo')
+    id_cargo = request.args.get('cargo')
+    
+    # Consulta de empleados con condiciones de filtrado (fecha, área, cargo)
+    query = """
         SELECT empleados.idEmpleado, empleados.nombre, empleados.apellido, cargos.nombre AS cargo, 
                areatrabajo.nombre AS area_trabajo, empleados.salario, eps.nombre AS eps, pension.nombre AS pension
         FROM empleados
@@ -833,13 +841,25 @@ def empleados():
         JOIN areatrabajo ON empleados.idAreaTrabajo = areatrabajo.idAreaTrabajo
         JOIN eps ON empleados.idEPS = eps.idEPS
         JOIN pension ON empleados.idPension = pension.idPension
-        ORDER BY {ordenar_por} {direccion}
+        WHERE 1=1
     """
+    
+    # Añadir filtros de fechas
+    if fecha_inicio and fecha_fin:
+        query += f" AND empleados.fechaIngreso BETWEEN '{fecha_inicio}' AND '{fecha_fin}'"
+    
+    # Filtros por área de trabajo y cargo
+    if id_area_trabajo:
+        query += f" AND empleados.idAreaTrabajo = {id_area_trabajo}"
+    if id_cargo:
+        query += f" AND empleados.idCargo = {id_cargo}"
 
+    query += f" ORDER BY {ordenar_por} {direccion}"
+    
     cursor.execute(query)
     empleados = cursor.fetchall()
 
-    # Cargar datos para el formulario de agregar un empleado
+    # Cargar datos para los filtros de cargos y áreas de trabajo
     cursor.execute("SELECT * FROM Cargos")
     cargos = cursor.fetchall()
 
@@ -849,15 +869,17 @@ def empleados():
     cursor.close()
     conn.close()
 
-    
-
-    # Pasar datos a la plantilla
+    # Pasar los datos a la plantilla
     return render_template('empleados.html', 
                            empleados=empleados, 
                            cargos=cargos, 
                            area_trabajo=area_trabajo,
                            ordenar_por=ordenar_por,
-                           direccion=direccion)
+                           direccion=direccion,
+                           fecha_inicio=fecha_inicio,
+                           fecha_fin=fecha_fin,
+                           areatrabajo=id_area_trabajo,
+                           idCargo=id_cargo)
 
     
 @app.route('/novedades_empleados', methods=['GET'])
@@ -933,15 +955,13 @@ def detalle_novedades_empleados():
                 JOIN pension p ON e.idPension = p.idPension
                 WHERE e.fechaIngreso BETWEEN %s AND %s
             """
-
-          
+            
             if area_trabajo:
                 query += " AND at.idAreaTrabajo = %s"
        
             if cargo:
                 query += " AND c.idCargo = %s"
 
-   
             if area_trabajo and cargo:
                 cursor.execute(query, (fecha_inicio_obj, fecha_fin_obj, area_trabajo, cargo))
             elif area_trabajo:
@@ -956,15 +976,25 @@ def detalle_novedades_empleados():
         except ValueError:
             flash('Formato de fecha incorrecto. Por favor use MM/AAAA.', 'error')
 
+    # Aquí agregamos la consulta para obtener cargos y áreas de trabajo
+    cursor.execute("SELECT * FROM Cargos")
+    cargos = cursor.fetchall()
+    cursor.execute("SELECT * FROM AreaTrabajo")
+    area_trabajo_lista = cursor.fetchall()
+
     cursor.close()
     conn.close()
 
+    # Pasamos las variables `cargos` y `area_trabajo_lista` al template
     return render_template('empleados.html', 
                            empleados=empleados_detalle, 
                            fecha_inicio=fecha_inicio, 
                            fecha_fin=fecha_fin,
                            area_trabajo=area_trabajo, 
-                           cargo=cargo)
+                           cargo=cargo,
+                           cargos=cargos,               # Pasamos los cargos
+                           area_trabajo_lista=area_trabajo_lista)  # Pasamos las áreas de trabajo
+
 
 
 @app.route('/cantidad_incapacidades', methods=['GET'])
@@ -1174,3 +1204,279 @@ def reporte_nomina():
                            img_cargos=img_cargos_base64, 
                            img_areas=img_areas_base64,
                            img_salarios_area=img_salarios_area_base64)
+
+@app.route('/novedades_empleado', methods=['GET', 'POST'])
+def novedades_empleado():
+    if request.method == 'POST':
+        id_empleado = request.form['id_empleado']  # Obtener el ID del empleado desde el formulario
+        
+        # Fechas fijas que quieres usar para la consulta
+        fecha_inicio = '2010-01-01'
+        fecha_fin = '2026-11-30'
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Consulta SQL para obtener las novedades del empleado
+        query = """
+            SELECT fechaInicio, fechaFin, tipoNovedad
+            FROM novedades
+            WHERE idEmpleado = %s
+            AND fechaInicio BETWEEN %s AND %s
+        """
+
+        cursor.execute(query, (id_empleado, fecha_inicio, fecha_fin))
+        novedades = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        # Calcular los días de novedad y los días trabajados
+        for novedad in novedades:
+            # Las fechas ya son objetos datetime.date, por lo que podemos restarlas directamente
+            fecha_inicio_novedad = novedad['fechaInicio']
+            fecha_fin_novedad = novedad['fechaFin']
+
+            # Calcular la diferencia de días (incluyendo ambos días)
+            diferencia_dias = (fecha_fin_novedad - fecha_inicio_novedad).days + 1  # +1 porque incluimos el primer día
+            novedad['dias_novedad'] = diferencia_dias
+
+            # Calcular los días trabajados (asumiendo que el mes tiene 28 días)
+            dias_trabajados = 28 - novedad['dias_novedad']
+            novedad['dias_trabajados'] = dias_trabajados
+
+        # Si no se encuentran novedades
+        if not novedades:
+            return render_template('empleados.html', mensaje="No se encontraron novedades para este empleado en el periodo especificado.")
+        
+        return render_template('empleados.html', novedades=novedades)
+
+    return render_template('empleados.html')
+
+
+@app.route('/vacaciones_empleado', methods=['GET', 'POST'])
+def vacaciones_empleado():
+    if request.method == 'POST':
+        # Obtener el idEmpleado desde el formulario
+        id_empleado = request.form['id_empleado']
+        
+        # Conexión a la base de datos
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Consulta SQL para obtener las vacaciones del empleado
+        query = """
+            SELECT fechaInicio, fechaFin, tipoNovedad
+            FROM novedades
+            WHERE idEmpleado = %s
+            AND tipoNovedad = 'Vacaciones'
+        """
+        cursor.execute(query, (id_empleado,))
+        vacaciones = cursor.fetchall()
+
+        # Cerrar la conexión a la base de datos
+        cursor.close()
+        conn.close()
+
+        # Lista para almacenar resultados con días calculados
+        resultado_vacaciones = []
+
+        # Calcular días en vacaciones y días trabajados
+        for vacacion in vacaciones:
+            # Convertir las fechas a datetime
+            fecha_inicio = vacacion['fechaInicio']
+            fecha_fin = vacacion['fechaFin']
+            
+            # Asegurarse de que las fechas son de tipo datetime
+            if isinstance(fecha_inicio, str):
+                fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            if isinstance(fecha_fin, str):
+                fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+
+            # Calcular los días en vacaciones
+            dias_vacaciones = (fecha_fin - fecha_inicio).days + 1  # Incluyendo el día de inicio
+
+            # Calcular los días trabajados en el mes (suponiendo que el mes tiene 28 días)
+            dias_trabajados = 28 - dias_vacaciones
+            
+            # Añadir los resultados a la lista
+            resultado_vacaciones.append({
+                'fechaInicio': fecha_inicio.strftime('%Y-%m-%d'),
+                'fechaFin': fecha_fin.strftime('%Y-%m-%d'),
+                'tipoNovedad': vacacion['tipoNovedad'],
+                'dias_vacaciones': dias_vacaciones,
+                'dias_trabajados': dias_trabajados
+            })
+
+        # Mostrar los resultados en la plantilla
+        return render_template('empleados.html', vacaciones=resultado_vacaciones)
+
+    # Si es GET, simplemente mostrar el formulario
+    return render_template('empleados.html')
+
+
+@app.route('/bonificacion_empleado', methods=['GET', 'POST'])
+def bonificacion_empleado():
+    if request.method == 'POST':
+        # Obtener el idEmpleado desde el formulario
+        id_empleado = request.form['id_empleado']
+        
+        # Conexión a la base de datos
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Consulta SQL para obtener las bonificaciones del empleado
+        query = """
+            SELECT fechaInicio, fechaFin, tipoNovedad
+            FROM novedades
+            WHERE idEmpleado = %s
+            AND tipoNovedad = 'Bonificación'
+        """
+        cursor.execute(query, (id_empleado,))
+        bonificaciones = cursor.fetchall()
+
+        # Lista para almacenar los resultados
+        resultado_bonificaciones = []
+
+        # Consultar el precio de bonificación desde la tabla "nomina"
+        for bonificacion in bonificaciones:
+            # Obtener las fechas de inicio y fin
+            fecha_inicio = bonificacion['fechaInicio']
+            fecha_fin = bonificacion['fechaFin']
+
+            # Consultar el precio de bonificación desde la tabla "nomina"
+            query_precio = """
+                SELECT bonificacion
+                FROM nomina
+                WHERE idEmpleado = %s
+            """
+            cursor.execute(query_precio, (id_empleado,))
+            precio_bonificacion = cursor.fetchone()
+            precio_bonificacion = precio_bonificacion['bonificacion'] if precio_bonificacion else 0
+
+            # Formatear la fecha (solo mes y año)
+            fecha_bonificacion = fecha_inicio.strftime('%B %Y')  # Ejemplo: 'November 2024'
+
+            # Almacenar los resultados
+            resultado_bonificaciones.append({
+                'fechaInicio': fecha_bonificacion,
+                'fechaFin': fecha_bonificacion,  # Ambos son iguales, ya que solo mostramos el mes y año
+                'tipoNovedad': bonificacion['tipoNovedad'],
+                'fechaBonificacion': fecha_bonificacion,
+                'precioBonificacion': precio_bonificacion
+            })
+
+        # Cerrar la conexión a la base de datos
+        cursor.close()
+        conn.close()
+
+        # Mostrar los resultados en la plantilla
+        return render_template('empleados.html', bonificaciones=resultado_bonificaciones)
+
+    # Si es GET, simplemente mostrar el formulario
+    return render_template('empleados.html')
+
+
+
+@app.route('/apoyo_transporte_empleado', methods=['GET', 'POST'])
+def apoyo_transporte_empleado():
+    if request.method == 'POST':
+        # Obtener el idEmpleado desde el formulario
+        id_empleado = request.form['id_empleado']
+        
+        # Conexión a la base de datos
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Consulta SQL para obtener el Apoyo de Transporte del empleado
+        query = """
+            SELECT fechaInicio, fechaFin, tipoNovedad
+            FROM novedades
+            WHERE idEmpleado = %s
+            AND tipoNovedad = 'ApoyoTransporte'
+        """
+        cursor.execute(query, (id_empleado,))
+        apoyos_transporte = cursor.fetchall()
+
+        # Lista para almacenar los resultados
+        resultado_apoyos = []
+
+        # Consultar el precio de apoyo de transporte desde la tabla "nomina"
+        for apoyo in apoyos_transporte:
+            # Obtener las fechas de inicio y fin
+            fecha_inicio = apoyo['fechaInicio']
+            fecha_fin = apoyo['fechaFin']
+
+            # Consultar el precio de apoyo de transporte desde la tabla "nomina"
+            query_precio = """
+                SELECT apoyoTransporte
+                FROM nomina
+                WHERE idEmpleado = %s
+            """
+            cursor.execute(query_precio, (id_empleado,))
+            precio_apoyo = cursor.fetchone()
+            precio_apoyo = precio_apoyo['apoyoTransporte'] if precio_apoyo else 0
+
+            # Formatear la fecha (solo mes y año)
+            fecha_apoyo = fecha_inicio.strftime('%B %Y')  # Ejemplo: 'Noviembre 2024'
+
+            # Almacenar los resultados
+            resultado_apoyos.append({
+                'fechaInicio': fecha_apoyo,
+                'fechaFin': fecha_apoyo,  # Ambos son iguales, ya que solo mostramos el mes y año
+                'tipoNovedad': apoyo['tipoNovedad'],
+                'fechaApoyoTransporte': fecha_apoyo,
+                'precioApoyoTransporte': precio_apoyo
+            })
+
+        # Cerrar la conexión a la base de datos
+        cursor.close()
+        conn.close()
+
+        # Mostrar los resultados en la plantilla
+        return render_template('empleados.html', apoyos=resultado_apoyos)
+
+    # Si es GET, simplemente mostrar el formulario
+    return render_template('empleados.html')
+
+@app.route('/salarios_totales', methods=['GET', 'POST'])
+def salarios_totales():
+    if request.method == 'POST':
+        # Obtener las fechas de inicio y fin desde el formulario
+        fecha_inicio = request.form['fecha_inicio']
+        fecha_fin = request.form['fecha_fin']
+
+        # Conexión a la base de datos
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        try:
+            # Convertir las fechas de MM/YYYY a formato de fecha completo (YYYY-MM)
+            fecha_inicio_obj = datetime.strptime(fecha_inicio, '%m/%Y').date()
+            fecha_fin_obj = datetime.strptime(fecha_fin, '%m/%Y').date()
+
+            # Consultar los salarios de todos los empleados dentro del rango de fechas
+            query = """
+                SELECT SUM(nomina.totalSalario) AS total_salarios
+                FROM nomina
+                WHERE STRFTIME('%Y-%m', nomina.mesAnio) BETWEEN ? AND ?
+            """
+            cursor.execute(query, (fecha_inicio_obj.strftime('%Y-%m'), fecha_fin_obj.strftime('%Y-%m')))
+            resultado = cursor.fetchone()
+
+            # Si no hay resultados, asignar 0
+            total_salarios = resultado['total_salarios'] if resultado['total_salarios'] is not None else 0.00
+
+        except ValueError:
+            flash('Formato de fecha incorrecto. Por favor use MM/AAAA.', 'error')
+            total_salarios = 0.00
+        
+        # Cerrar la conexión a la base de datos
+        cursor.close()
+        conn.close()
+
+        # Retornar los resultados a la plantilla
+        return render_template('empleados.html', fecha_inicio=fecha_inicio, fecha_fin=fecha_fin, total_salarios=total_salarios)
+
+    # Si es un GET, simplemente mostrar el formulario
+    return render_template('empleados.html')

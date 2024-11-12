@@ -9,6 +9,10 @@
     <title>Lista de Empleados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+
+
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -314,19 +318,37 @@
         </div>
     
         <!-- Formulario de filtrado -->
-        <form method="GET" action="{{ url_for('cantidad_incapacidades') }}" class="row g-3">
-            <div class="col-md-6">
-                <label for="fecha_inicio" class="form-label">Fecha de inicio (MM/AAAA):</label>
-                <input type="text" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}" placeholder="MM/AAAA" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-                <label for="fecha_fin" class="form-label">Fecha de fin (MM/AAAA):</label>
-                <input type="text" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}" placeholder="MM/AAAA" class="form-control" required>
-            </div>
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-primary mt-3">Filtrar</button>
-            </div>
-        </form>
+<form method="GET" action="{{ url_for('empleados') }}" class="row g-3">
+    <div class="col-md-6">
+        <label for="fecha_inicio" class="form-label">Fecha de inicio (MM/AAAA):</label>
+        <input type="text" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}" placeholder="MM/AAAA" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+        <label for="fecha_fin" class="form-label">Fecha de fin (MM/AAAA):</label>
+        <input type="text" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}" placeholder="MM/AAAA" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+        <label for="areatrabajo" class="form-label">Área de Trabajo:</label>
+        <select name="areatrabajo" id="areatrabajo" class="form-select">
+            <option value="">Seleccione Área de Trabajo</option>
+            {% for area in area_trabajo %}
+                <option value="{{ area.idAreaTrabajo }}" {% if area.idAreaTrabajo == areatrabajo %} selected {% endif %}>{{ area.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label for="cargo" class="form-label">Cargo:</label>
+        <select name="cargo" id="cargo" class="form-select" required>
+            <option value="" disabled selected>Seleccione un Cargo</option>
+            {% for cargo in cargos %}
+                <option value="{{ cargo.idCargo }}" {% if cargo.idCargo == idCargo %} selected {% endif %}>{{ cargo.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-primary mt-3">Filtrar</button>
+    </div>
+</form>
     
         <!-- Sección de resultados -->
         <div class="section-title mt-4">
@@ -372,7 +394,256 @@
                 });
         });
     </script>
-    
-    
+ 
+ <div class="container my-5">
+    <!-- Título de la sección -->
+    <h1 class="text-center mb-4">Consultar Novedades de Empleado</h1>
+
+    <!-- Formulario para ingresar el ID del empleado -->
+    <div class="section-title">
+        <h3 class="mb-3">Ingrese el ID del Empleado para consultar sus novedades:</h3>
+    </div>
+
+    <form action="/novedades_empleado" method="post" class="row g-3">
+        <div class="col-md-6">
+            <label for="id_empleado" class="form-label">ID del Empleado:</label>
+            <input type="number" name="id_empleado" id="id_empleado" class="form-control" required>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary mt-3">Consultar Novedades</button>
+        </div>
+    </form>
+
+    <!-- Mensajes de error o éxito -->
+    {% if mensaje %}
+        <div class="alert alert-warning mt-4" role="alert">
+            {{ mensaje }}
+        </div>
+    {% endif %}
+
+    <!-- Sección de resultados -->
+    {% if novedades %}
+        <div class="section-title mt-4">
+            <h3>Novedades del Empleado</h3>
+        </div>
+
+        <table class="table table-striped table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Fecha de Inicio</th>
+                    <th>Fecha de Fin</th>
+                    <th>Tipo de Novedad</th>
+                    <th>Días en Novedad</th>
+                    <th>Días Trabajados</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for novedad in novedades %}
+                <tr>
+                    <td>{{ novedad.fechaInicio }}</td>
+                    <td>{{ novedad.fechaFin }}</td>
+                    <td>{{ novedad.tipoNovedad }}</td>
+                    <td>{{ novedad.dias_novedad }}</td>
+                    <td>{{ novedad.dias_trabajados }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+
+<div class="container my-5">
+    <!-- Título de la sección -->
+    <h1 class="text-center mb-4">Consultar Vacaciones de Empleado</h1>
+
+    <!-- Formulario para ingresar el ID del empleado -->
+    <div class="section-title">
+        <h3 class="mb-3">Ingrese el ID del Empleado para consultar sus vacaciones:</h3>
+    </div>
+
+    <form action="/vacaciones_empleado" method="post" class="row g-3">
+        <div class="col-md-6">
+            <label for="id_empleado" class="form-label">ID del Empleado:</label>
+            <input type="number" name="id_empleado" id="id_empleado" class="form-control" required>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary mt-3">Consultar Vacaciones</button>
+        </div>
+    </form>
+
+    <!-- Mensajes de error o éxito -->
+    {% if mensaje %}
+        <div class="alert alert-warning mt-4" role="alert">
+            {{ mensaje }}
+        </div>
+    {% endif %}
+
+    <!-- Sección de resultados -->
+    {% if vacaciones %}
+        <div class="section-title mt-4">
+            <h3>Vacaciones del Empleado</h3>
+        </div>
+
+        <table class="table table-striped table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Fecha de Inicio</th>
+                    <th>Fecha de Fin</th>
+                    <th>Tipo de Novedad</th>
+                    <th>Días en Vacaciones</th>
+                    <th>Días Trabajados</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vacacion in vacaciones %}
+                <tr>
+                    <td>{{ vacacion.fechaInicio }}</td>
+                    <td>{{ vacacion.fechaFin }}</td>
+                    <td>{{ vacacion.tipoNovedad }}</td>
+                    <td>{{ vacacion.dias_vacaciones }}</td>
+                    <td>{{ vacacion.dias_trabajados }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<div class="container my-5">
+    <!-- Título de la sección -->
+    <h1 class="text-center mb-4">Consultar Bonificación de Empleado</h1>
+
+    <!-- Formulario para ingresar el ID del empleado -->
+    <div class="section-title">
+        <h3 class="mb-3">Ingrese el ID del Empleado para consultar sus bonificaciones:</h3>
+    </div>
+
+    <form action="/bonificacion_empleado" method="post" class="row g-3">
+        <div class="col-md-6">
+            <label for="id_empleado" class="form-label">ID del Empleado:</label>
+            <input type="number" name="id_empleado" id="id_empleado" class="form-control" required>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary mt-3">Consultar Bonificación</button>
+        </div>
+    </form>
+
+    <!-- Mensajes de error o éxito -->
+    {% if mensaje %}
+        <div class="alert alert-warning mt-4" role="alert">
+            {{ mensaje }}
+        </div>
+    {% endif %}
+
+    <!-- Sección de resultados -->
+    {% if bonificaciones %}
+        <div class="section-title mt-4">
+            <h3>Bonificaciones del Empleado</h3>
+        </div>
+
+        <table class="table table-striped table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Fecha de Bonificación</th>
+                    <th>Tipo de Novedad</th>
+                    <th>Precio de Bonificación</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bonificacion in bonificaciones %}
+                <tr>
+                    <td>{{ bonificacion.fechaBonificacion }}</td>
+                    <td>{{ bonificacion.tipoNovedad }}</td>
+                    <td>{{ bonificacion.precioBonificacion | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+
+<div class="container my-5">
+    <!-- Título de la sección -->
+    <h1 class="text-center mb-4">Consultar Apoyo de Transporte de Empleado</h1>
+
+    <!-- Formulario para ingresar el ID del empleado -->
+    <div class="section-title">
+        <h3 class="mb-3">Ingrese el ID del Empleado para consultar su apoyo de transporte:</h3>
+    </div>
+
+    <form action="/apoyo_transporte_empleado" method="post" class="row g-3">
+        <div class="col-md-6">
+            <label for="id_empleado" class="form-label">ID del Empleado:</label>
+            <input type="number" name="id_empleado" id="id_empleado" class="form-control" required>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary mt-3">Consultar Apoyo de Transporte</button>
+        </div>
+    </form>
+
+    <!-- Mensajes de error o éxito -->
+    {% if mensaje %}
+        <div class="alert alert-warning mt-4" role="alert">
+            {{ mensaje }}
+        </div>
+    {% endif %}
+
+    <!-- Sección de resultados -->
+    {% if apoyos %}
+        <div class="section-title mt-4">
+            <h3>Apoyos de Transporte del Empleado</h3>
+        </div>
+
+        <table class="table table-striped table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Fecha de Apoyo de Transporte</th>
+                    <th>Tipo de Novedad</th>
+                    <th>Precio de Apoyo de Transporte</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for apoyo in apoyos %}
+                <tr>
+                    <td>{{ apoyo.fechaApoyoTransporte }}</td>
+                    <td>{{ apoyo.tipoNovedad }}</td>
+                    <td>{{ apoyo.precioApoyoTransporte | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+
+<div class="container">
+    <h1 class="mt-5">Calcular Total de Salarios</h1>
+
+    <form method="POST" action="{{ url_for('salarios_totales') }}" class="row g-3">
+        <div class="col-md-6">
+            <label for="fecha_inicio" class="form-label">Fecha de inicio (MM/AAAA):</label>
+            <input type="text" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}" placeholder="MM/AAAA" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+            <label for="fecha_fin" class="form-label">Fecha de fin (MM/AAAA):</label>
+            <input type="text" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}" placeholder="MM/AAAA" class="form-control" required>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary mt-3">Calcular</button>
+        </div>
+    </form>
+
+    <p>El total de salarios acumulados entre el rango de fechas es: 
+        <strong>
+            ${{
+                total_salarios | default(0.00) | round(2)
+            }}
+        </strong>
+    </p>
+</div>
+
+
 </body>
 </html>

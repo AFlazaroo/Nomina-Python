@@ -118,6 +118,12 @@
             <button onclick="buscarEmpleado()">Buscar</button>
     
             <button onclick="mostrarFormularioEmpleado()">Agregar Empleado</button>
+
+            <a href="http://127.0.0.1:5000/reporte_nomina" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Ordenar por y graficos:</a>
+            <a href="http://127.0.0.1:5000/empleados" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Empleados con novedades</a>
+            <a href="http://127.0.0.1:5000/empleados" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Incapacidad</a>
+           
+           
             <div id="formularioModalEmpleado" style="display:none;">
                 <form method="POST" action="{{ url_for('agregar_EmpleadoAdmin') }}">
                     <input type="text" name="nombre" placeholder="Nombre del Empleado" required>
@@ -132,10 +138,10 @@
                     </select>
                     
                     
-                    <select name="idAreaTrabajo" required>
-                        <option value="" disabled selected>Seleccione un Área de Trabajo</option>
-                        {% for areatrabajo in areatrabajo %}
-                            <option value="{{ areatrabajo.idAreaTrabajo }}">{{ areatrabajo.nombre }}</option>
+                    <select name="areatrabajo" id="areatrabajo" class="form-select">
+                        <option value="">Seleccione Área de Trabajo</option>
+                        {% for area in area_trabajo_lista %}
+                            <option value="{{ area.idAreaTrabajo }}" {% if area.idAreaTrabajo == areatrabajo %} selected {% endif %}>{{ area.nombre }}</option>
                         {% endfor %}
                     </select>
                     
@@ -189,7 +195,8 @@
                             </select>
                             <select name="area_trabajo_id" required>
                                 {% for area in areatrabajo %}
-                                    <option value="{{ area.idAreaTrabajo }}" {% if area.idAreaTrabajo == empleado.area_trabajo_id %} selected {% endif %}>{{ area.nombre }}</option>
+                                <option value="{{ area.idAreaTrabajo }}" {% if area.idAreaTrabajo == area_trabajo %} selected {% endif %}>{{ area.nombre }}</option>
+
                                 {% endfor %}
                             </select>
                             <input type="text" name="salario" value="{{ empleado.salario }}" required>
@@ -211,7 +218,9 @@
         <h3>Se administra la lista de EPS</h3>
         <div class="search">
             <button onclick="mostrarFormularioEPS()">Agregar EPS</button>
-            <div id="formularioModalEPS" style="display:none;">
+            <a href="http://127.0.0.1:5000/graficos" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Graficos:</a>
+            <a href="http://127.0.0.1:5000/empleados" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Ordenar por:</a>
+             <div id="formularioModalEPS" style="display:none;">
                 <form method="POST" action="{{ url_for('agregar_EPS') }}">
                     <input type="text" name="nombre" placeholder="Nombre de la EPS" required>
                     <input type="submit" value="Agregar">
@@ -304,6 +313,8 @@
         <h3>Administrar las Novedades</h3>
         <div class="search">
             <button onclick="mostrarFormularioNovedad()">Agregar Novedad</button>
+            <a href="http://127.0.0.1:5000/empleados" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Empleados con novedades</a>
+            <a href="http://127.0.0.1:5000/empleados" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Incapacidad</a>
             <div id="formularioModalNovedad" style="display:none;">
                 <form method="POST" action="{{ url_for('agregar_Novedad') }}">
                     <input type="text" name="idEmpleado" placeholder="ID Empleado" required>
@@ -370,7 +381,11 @@
     <h3>Administrar Pensión</h3>
     <div class="search">
         <button onclick="mostrarFormularioPension()">Agregar Pensión</button>
-        <div id="formularioPensionModal" style="display:none;">
+        
+        <a href="http://127.0.0.1:5000/graficos" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Graficos:</a>
+        <a href="http://127.0.0.1:5000/empleados" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Ordenar por:</a>
+           
+         <div id="formularioPensionModal" style="display:none;">
             <form method="POST" action="{{ url_for('agregar_Pension') }}">
                 <input type="text" name="nombre" placeholder="Nombre de la Pensión" required>
                 <input type="submit" value="Agregar">
@@ -448,6 +463,9 @@
     <h3>Administrar Salud y Pensión</h3>
     <div class="search">
         <button onclick="mostrarFormularioSaludPension()">Agregar Salud y Pensión</button>
+        <a href="http://127.0.0.1:5000/graficos" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Graficos:</a>
+        <a href="http://127.0.0.1:5000/empleados" class="btn-redirect" style="margin-left: 6px; padding: 5px 5px; background-color: #1b16bb; color: white; text-decoration: none; border-radius: 5px;">Ordenar por:</a>
+           
         <div id="formularioSaludPensionModal" style="display:none;">
             <form method="POST" action="{{ url_for('agregar_SaludPension') }}">
                 <input type="text" name="idEmpleado" placeholder="ID del Empleado" required>
