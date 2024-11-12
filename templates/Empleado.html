@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Panel del Team Lead</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+   
+
+</head>
+<body id=panelAdmin>
+    
+    <h1>Panel del Team Lead</h1>
+    <a href="{{ url_for('cerrar_sesion') }}" class="btn-cerrar-sesion">Cerrar Sesión</a>
+
+
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Empleados')">Usuarios</button>
+        <button class="tablinks" onclick="openTab(event, 'Asignaciones')">Asignaciones</button>
+        <button class="tablinks" onclick="openTab(event, 'Aviones')">Aviones</button>
+        <button class="tablinks" onclick="openTab(event, 'Inventario')">Inventario</button>
+        <button class="tablinks" onclick="openTab(event, 'Actividades')">Actividades</button>
+        <button class="tablinks" onclick="openTab(event, 'calificaciones_tecnicas')">Claficaciones Tecnicas</button>
+        <button class="tablinks" onclick="openTab(event, 'Equipos')">Equipos</button>
+        <button class="tablinks" onclick="openTab(event, 'Aeropuertos')">Aeropuertos</button>
+        <button class="tablinks" onclick="openTab(event, 'Mantenimientos')">Mantenimientos</button>
+        <button class="tablinks" onclick="openTab(event, 'Help')">Help</button>
+    </div>
+
+
+
+    <div id="Empleados" class="tabcontent">
+        <h2 id=subtitulos >Empleados</h2>
+        <h3>Se pueden observar los usuarios para generar asignaciones y demas  </h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaEmpleados" placeholder="Buscar por ID">
+            <button onclick="buscarEmpleados()">Buscar</button>
+        </div>
+            <table border="2"id="tablaEmpleado">
+                <tr>
+                    <th>Id Empelado</th>
+                    <th>Nombre</th>                
+                    <th>Rol</th>
+                    <th>Contraseña</th>
+                    <th>Usuario</th>
+                    <th>Acciones</th>
+                </tr>
+                <tr>
+                    {% for empleados in empleados %}
+                    <tr>
+                        <td>{{ empleados.ID_Empleado }}</td>
+                        <td>{{ empleados.Nombre }}</td>
+                        <td>{{ empleados.Rol }}</td>
+                        <td>{{ empleados.Contraseña }}</td>
+                        <td>{{ empleados.Usuario }}</td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tr>
+            </table>
+    </div>
+    
+
+
+    <div id="Asignaciones" class="tabcontent">
+        <h2 id=subtitulos >Asignaciones</h2>
+        <h3>Se añaden las asiganciones que se deben llevar acabo por los empleados  </h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaAsignaciones" placeholder="Buscar por ID">
+            <button onclick="buscarAsiganciones()">Buscar</button>
+
+            <button onclick="mostrarFormulario()">Agregar Asignación</button>
+            <div id="formularioModal" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_asignacion') }}">
+                    <input type="text" name="ID_Tecnico" placeholder="ID Técnico" required>
+                    <input type="text" name="ID_Aeronave" placeholder="ID Aeronave" required>
+                    <input type="text" name="Horario" placeholder="Horario" required>
+                    <input type="submit" value="Agregar">
+                </form>
+            </div>
+        </div>
+        <table border="3"id="tablaAsignaciones">
+            <tr>
+                <th>Id Asignacion</th>
+                <th>Id Tecnico</th>
+                <th>Id Aeronave</th>
+                <th>Horarios</th>
+                <th>Acciones</th>
+            </tr>
+            {% for asignacion in asignaciones %}
+            <tr>
+                <td>{{ asignacion.ID_Asignacion }}</td>
+                <td>{{ asignacion.ID_Tecnico }}</td>
+                <td>{{ asignacion.ID_Aeronave }}</td>
+                <td>{{ asignacion.Horario }}</td>
+                <td>
+                <button onclick="mostrarFormularioModificacion({{ asignacion.ID_Asignacion }})">Modificar</button>
+                <div id="modificarForm{{ asignacion.ID_Asignacion }}" class="modificar-formulario" style="display:none;">
+                    <form method="POST" action="{{ url_for('modificar_asignacion', id=asignacion.ID_Asignacion) }}">
+                        <input type="text" name="ID_Tecnico" value="{{ asignacion.ID_Tecnico }}" required>
+                        <input type="text" name="ID_Aeronave" value="{{ asignacion.ID_Aeronave }}" required>
+                        <input type="text" name="horario" value="{{ asignacion.Horario }}" required>
+                        <input type="submit" value="Modificar">
+                    </form>
+                </div>
+                    <a href="{{ url_for('eliminar_asignacion', id=asignacion.ID_Asignacion) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta asignación?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+
+    
+
+    <div id="Aviones" class="tabcontent">
+        <h2 id=subtitulos >Aviones</h2>
+        <h3>Son lo registros de aviones que se tiene por stock</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaAviones" placeholder="Buscar por ID">
+            <button onclick="buscarAviones()">Buscar</button>
+                <table border="2"id="tablaAviones">
+                    <tr>
+                        <th>Id avion</th>
+                        <th>Modelo</th>
+                        <th>Capacidad</th>
+                        <th>Ubicacion actual</th>
+                    </tr>
+                    {% for aeronaves in aeronaves %}
+                    <tr>
+                        <td>{{ aeronaves.ID_Aeronave }}</td>
+                        <td>{{ aeronaves.Modelo }}</td>
+                        <td>{{ aeronaves.Capacidad }}</td>
+                        <td>{{ aeronaves.Ubicacion_Actual }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="Inventario" class="tabcontent">
+        <h2 id=subtitulos >Inventario</h2>
+        <h3>Este inventario es de las piezas que se tienen disponibles en stock</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaInventario" placeholder="Buscar por ID">
+            <button onclick="buscarInventario()">Buscar</button>
+            <button onclick="mostrarFormularioInventario()">Agregar Objeto de inventario</button>
+                <div id="formularioModalInventario" style="display:none;">
+                    <form method="POST" action="{{ url_for('agregar_inventario') }}">
+                        <input type="text" name="ID_Pieza" placeholder="ID Pieza" required>
+                        <input type="text" name="Descripcion" placeholder="Descripcion" required>
+                        <input type="text" name="Ubicacion" placeholder="Ubicacion" required>
+                        <input type="text" name="Cantidad_Disponible" placeholder="Cantidad Disponible" required>
+                        <input type="submit" value="Agregar">
+                    </form>
+                </div>
+            <table border="2"id="tablaInventario">
+                <tr>
+                    <th>Id pieza</th>
+                    <th>Descripcion</th>
+                    <th>Ubicacion</th>
+                    <th>Cantidad Dsponible</th>
+                    <th>Acciones</th>
+                </tr>
+                <tr>
+                    {% for inventario in inventario %}
+                    <tr>
+                        <td>{{ inventario.ID_Pieza }}</td>
+                        <td>{{ inventario.Descripcion }}</td>
+                        <td>{{ inventario.Ubicacion }}</td>
+                        <td>{{ inventario.Cantidad_Disponible }}</td>
+                        <td>
+                        <button onclick="mostrarFormularioModificacionInventario({{ inventario.ID_Pieza }})">Modificar</button>
+                        <div id="modificarFormInventario{{ inventario.ID_Pieza }}" class="modificar-formulario" style="display:none;">
+                            <form method="POST" action="{{ url_for('modificar_inventario', id=inventario.ID_Pieza) }}">
+                                <input type="text" name="ID_Pieza" value="{{inventario.ID_Pieza }}" required>
+                                <input type="text" name="Descripcion" value="{{ inventario.Descripcion }}" required>
+                                <input type="text" name="Ubicacion" value="{{ inventario.Ubicacion }}" required>
+                                <input type="text" name="Cantidad_Disponible" value="{{ inventario.Cantidad_Disponible }}" required>
+                                <input type="submit" value="Modificar">
+                            </form>
+                        </div>
+                        <a href="{{ url_for('eliminar_inventario', id=inventario.ID_Pieza) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta asignación?');">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    
+
+
+    
+    <div id="Actividades" class="tabcontent">
+        <h2 id=subtitulos >Actividades</h2>
+        <h3>Se asignaran las actividades de los empleados</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaActividades" placeholder="Buscar por ID">
+            <button onclick="buscarActividades()">Buscar</button>
+            <button onclick="mostrarFormularioActividades()">Agregar nueva actividad</button>
+            <div id="formularioModalActividades" style="display:none;">
+                <form method="POST" action="{{ url_for('agregar_actividades') }}">
+                    <input type="text" name="Descripcion" placeholder="Descripcion" required>
+                    <input type="text" name="ID_Empleado" placeholder="ID Empelado" required>
+                    <input type="text" name="Fecha_Hora" placeholder="Fecha Hora" required>
+                    <input type="text" name="ID_Aeronave" placeholder="ID Aeronave" required>
+                    <input type="submit" value="Agregar">
+                </form>
+            </div>
+                <table border="2"id="tablaActividad">
+                    <tr>
+                        <th>Id Actividad</th>
+                        <th>Descripcion</th>
+                        <th>ID Empleado</th>
+                        <th>Fecha y Hora</th>
+                        <th>Id_Aeronave</th>
+                        <th>Acciones</th>
+                    </tr>
+                    <tr>
+                    {% for actividades in actividades %}
+                    <tr>
+                        <td>{{ actividades.ID_Actividad }}</td>
+                        <td>{{ actividades.Descripcion }}</td>
+                        <td>{{ actividades.ID_Empleado }}</td>
+                        <td>{{ actividades.Fecha_Hora }}</td>
+                        <td>{{ actividades.ID_Aeronave }}</td>
+                        <td>
+                            <button onclick="mostrarFormularioModificacionActividades({{ actividades.ID_Actividad }})">Modificar</button>
+                            <div id="modificarFormActividades{{ actividades.ID_Actividad }}" class="modificar-formulario" style="display:none;">
+                                <form method="POST" action="{{ url_for('modificar_actividades', id=actividades.ID_Actividad) }}">
+                                <input type="text" name="Descripcion" value="{{ actividades.Descripcion }}" required>
+                                <input type="text" name="ID_Empleado" value="{{ actividades.ID_Empleado }}" required>
+                                <input type="text" name="Fecha_Hora" value="{{ actividades.Fecha_Hora }}" required>
+                                <input type="text" name="ID_Aeronave" value="{{ actividades.ID_Aeronave }}" required>
+                                <input type="submit" value="Modificar">
+                                </form>
+                            </div>
+                            <a href="{{ url_for('eliminar_actividades', id=actividades.ID_Actividad) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta asignación?');">Eliminar</a>
+                        </td>               
+                    </tr>
+                    {% endfor %}
+                </table>
+        </div>
+    </div>
+
+    <div id="calificaciones_tecnicas" class="tabcontent">
+        <h2 id=subtitulos >Calificaciones Tecnicas</h2>
+        <h3>Calificaciones dadas por la encuesta de satisfaccion</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaCalificaciones" placeholder="Buscar por ID">
+            <button onclick="buscarCalificaciones()">Buscar</button>
+                <table border="3"id="tablaCalificaciones">
+                    <tr>
+                        <th>Id Tecnico</th>
+                        <th>Id Empleado</th>
+                        <th>Id Calificaciones</th>
+                    </tr>
+                    {% for calificacionestecnicas in calificacionestecnicas %}
+                    <tr>
+                        <td>{{ calificacionestecnicas.ID_Tecnico }}</td>
+                        <td>{{ calificacionestecnicas.ID_Empleado }}</td>
+                        <td>{{ calificacionestecnicas.Calificaciones }}</td>
+                
+                    </tr>
+                    {% endfor %}
+                </table>
+        </div>
+    </div>          
+
+    <div id="Equipos" class="tabcontent">
+        <h2 id=subtitulos >Equipos</h2>
+        <h3>Son los equipos conformados para realizar dichas acciones</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaEquipos" placeholder="Buscar por ID">
+            <button onclick="buscarEquipos()">Buscar</button>
+                <table border="3"id="tablaEquipos">
+                    <tr>
+                        <th>Id Equipo</th>
+                        <th>Nombre equipos</th>
+                        <th>Id TeamLead</th>
+                    </tr>
+                    {% for equipos in equipos %}
+                    <tr>
+                        <td>{{ equipos.ID_Equipo }}</td>
+                        <td>{{ equipos.Nombre_Equipo }}</td>
+                        <td>{{ equipos.ID_TeamLead }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+        </div>
+    </div>
+
+    <div id="Aeropuertos" class="tabcontent">
+        <h2 id=subtitulos >Aeropuertos</h2>
+        <h3>Son los Aeropuertos donde tenemos sedes de mantenimientos</h3>
+        <div class="search">
+            <input type="text" id="inputBusquedaAeropuertos" placeholder="Buscar por ID">
+            <button onclick="buscarAeropuertos()">Buscar</button>
+            <table border="3"id="tablaAeropuertos">
+                <tr>
+                    <th>Id Aeropuerto</th>
+                    <th>Nombre</th>
+                    <th>Codigo IATA</th>
+                    <th>Ciudad</th>
+                    <th>Pais</th>
+                    <th>Pistas Disponibles</th>
+                    <th>capacidad</th>
+                    <th>Servicios Adicionales</th>
+                    <th>Notas</th>
+                </tr>
+                {% for aeropuertos in aeropuertos %}
+                <tr>
+                    <td>{{ aeropuertos.ID_Aeropuerto }}</td>
+                    <td>{{ aeropuertos.Nombre_Aeropuerto }}</td>
+                    <td>{{ aeropuertos.Codigo_IATA }}</td>
+                    <td>{{ aeropuertos.Ciudad }}</td>
+                    <td>{{ aeropuertos.Pais }}</td>
+                    <td>{{ aeropuertos.Pistas_Disponibles }}</td>
+                    <td>{{ aeropuertos.Capacidad }}</td>
+                    <td>{{ aeropuertos.Servicios_Adicionales }}</td>
+                    <td>{{ aeropuertos.Notas }}</td>
+
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div id="Mantenimientos" class="tabcontent">
+        <h2 >Mantenimientos</h2>
+        <h3>Son los mantenimientos que tienen que ser registrados</h3>
+        <div class="search">
+                <input type="text" id="inputBusquedaMantenimiento" placeholder="Buscar por ID">
+                <button onclick="buscarMantenimiento()">Buscar</button>
+
+                <button onclick="mostrarFormularioMantenimientos()">Agregar Mantenimiento</button>
+                <div id="formularioModalMantenimientos" style="display:none;">
+                    <form method="POST" action="{{ url_for('agregar_mantenimientosTeam') }}">
+                    <input type="text" name="ID_Aeronave" placeholder="ID Aeronave" required>
+                    <input type="text" name="Fecha_Servicio" placeholder="Fecha Servicio" required>
+                    <input type="text" name="Tipo_Mantenimiento" placeholder="Tipo Mantenimiento" required>
+                    <input type="text" name="ID_Pieza" placeholder="ID Pieza" required>
+                    <input type="submit" value="Agregar">
+                    </form>
+                </div>
+            <table border="2"id="tablaMantenimientos">
+                <tr>
+                    <th>Id Mantenimiento</th>
+                    <th>Id Aeronave</th>                
+                    <th>Fecha de servicio</th>
+                    <th>Tipo Mantenimiento</th>
+                    <th>Id Pieza</th>
+                    <th>Acciones</th>
+                </tr>
+                <tr>
+                    {% for mantenimiento in mantenimiento %}
+                    <tr>
+                        <td>{{ mantenimiento.ID_Mantenimiento }}</td>
+                        <td>{{ mantenimiento.ID_Aeronave }}</td>
+                        <td>{{ mantenimiento.Fecha_Servicio }}</td>
+                        <td>{{ mantenimiento.Tipo_Mantenimiento }}</td>
+                        <td>{{ mantenimiento.ID_Pieza }}</td>
+                        <td>
+                            <button onclick="mostrarFormularioModificacionMantenimientos({{ mantenimiento.ID_Mantenimiento }})">Modificar</button>
+                                <div id="modificarFormMantenimiento{{ mantenimiento.ID_Mantenimiento }}" class="modificar-formulario" style="display:none;">
+                                    <form method="POST" action="{{ url_for('modificar_mantenimientoTeam', id=mantenimiento.ID_Mantenimiento) }}">
+                                        <input type="text" name="ID_Aeronave" value="{{ mantenimiento.ID_Aeronave }}" required>
+                                        <input type="text" name="Fecha_Servicio" value="{{ mantenimiento.Fecha_Servicio }}" required>
+                                        <input type="text" name="Tipo_Mantenimiento" value="{{ mantenimiento.Tipo_Mantenimiento }}" required>
+                                        <input type="text" name="ID_Pieza" value="{{ mantenimiento.ID_Pieza }}" required>
+                                        <input type="submit" value="Modificar">
+                                    </form>
+                                </div>
+                                <a href="{{ url_for('eliminar_mantenimientos', id=mantenimiento.ID_Mantenimiento) }}" class="btn-eliminar" onclick="return confirm('¿Estás seguro de que quieres eliminar esta asignación?');">Eliminar</a>
+                        </td> 
+                    </tr>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <div id="Help" class="tabcontent">
+        <h2>Contactar al Administrador</h2>
+        <p>Si tienes alguna pregunta o necesitas ayuda, por favor completa el siguiente formulario y te responderemos a la brevedad.</p>
+
+        <form action="enviar_correo.php" method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required>
+
+        <label for="correo">Correo Electrónico:</label>
+        <input type="email" id="correo" name="correo" required>
+
+        <label for="mensaje">Mensaje:</label>
+        <textarea id="mensaje" name="mensaje" rows="4" required></textarea>
+
+        <input type="submit" value="Enviar">
+        </form>
+
+    </div>
+
+    <script>
+        function mostrarFormulario() {
+            document.getElementById('formularioModal').style.display = 'block';
+        }
+        function mostrarFormularioModificacion(idAsignacion) {
+            var formulario = document.getElementById('modificarForm' + idAsignacion);
+            formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+        }
+
+
+        function mostrarFormularioAeronave() {
+            document.getElementById('formularioModalAeronave').style.display = 'block';
+        }
+        function mostrarFormularioModificacionAeronave(idAeronave) {
+            var formulario = document.getElementById('modificarFormAeronave' + idAeronave);
+            formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+        }
+
+
+        function mostrarFormularioInventario() {
+            document.getElementById('formularioModalInventario').style.display = 'block';
+        }
+        function mostrarFormularioModificacionInventario(idpieza) {
+            var formulario = document.getElementById('modificarFormInventario' + idpieza);
+            formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+        }
+
+
+        function mostrarFormularioActividades() {
+            document.getElementById('formularioModalActividades').style.display = 'block';
+        }
+        function mostrarFormularioModificacionActividades(idactividad) {
+            var formulario = document.getElementById('modificarFormActividades' + idactividad);
+            formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+        }
+        function mostrarFormularioMantenimientos() {
+            document.getElementById('formularioModalMantenimientos').style.display = 'block';
+        }
+        function mostrarFormularioModificacionMantenimientos(idmantenimiento) {
+            var formulario = document.getElementById('modificarFormMantenimiento' + idmantenimiento);
+            formulario.style.display = formulario.style.display === 'block' ? 'none' : 'block';
+        }
+
+      
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        function buscarAsiganciones() {
+            var idBusqueda = document.getElementById('inputBusquedaAsignaciones').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaAsignaciones tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarEmpleados() {
+            var idBusqueda = document.getElementById('inputBusquedaEmpleados').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaEmpleado tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarAviones() {
+            var idBusqueda = document.getElementById('inputBusquedaAviones').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaAviones tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarInventario() {
+            var idBusqueda = document.getElementById('inputBusquedaInventario').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaInventario tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarActividades() {
+            var idBusqueda = document.getElementById('inputBusquedaActividades').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaActividad tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarCalificaciones() {
+            var idBusqueda = document.getElementById('inputBusquedaCalificaciones').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaCalificaciones tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarEquipos() {
+            var idBusqueda = document.getElementById('inputBusquedaEquipos').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaEquipos tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarAeropuertos() {
+            var idBusqueda = document.getElementById('inputBusquedaAeropuertos').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaAeropuertos tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+        function buscarMantenimiento() {
+            var idBusqueda = document.getElementById('inputBusquedaMantenimiento').value.toLowerCase();
+            var filas = document.querySelectorAll('#tablaMantenimientos tr');
+        
+            filas.forEach(function(fila) {
+                var idMantenimiento = fila.cells[0] ? fila.cells[0].innerText.toLowerCase() : '';
+                if (idMantenimiento.includes(idBusqueda) && idBusqueda !== '') {
+                    fila.style.backgroundColor = 'yellow';
+                } else {
+                    fila.style.backgroundColor = '';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

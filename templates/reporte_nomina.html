@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Nómina</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        select, button {
+            padding: 8px 16px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        select {
+            width: 200px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .no-data {
+            padding: 20px;
+            text-align: center;
+            color: #777;
+        }
+        .chart-container {
+            margin-top: 40px;
+        }
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Reporte de Nómina</h1>
+
+        <!-- Formulario para ordenar -->
+        <form method="POST" action="/reporte_nomina">
+            <div>
+                <label for="order_by">Ordenar por:</label>
+                <select name="order_by" id="order_by">
+                    <option value="e.nombre" {% if order_by == 'e.nombre' %}selected{% endif %}>Nombre</option>
+                    <option value="at.nombre" {% if order_by == 'at.nombre' %}selected{% endif %}>Área de Trabajo</option>
+                    <option value="c.nombre" {% if order_by == 'c.nombre' %}selected{% endif %}>Cargo</option>
+                    <option value="e.salario" {% if order_by == 'e.salario' %}selected{% endif %}>Salario</option>
+                </select>
+            </div>
+            <div>
+                <label for="direction">Orden:</label>
+                <select name="direction" id="direction">
+                    <option value="ASC" {% if direction == 'ASC' %}selected{% endif %}>Ascendente</option>
+                    <option value="DESC" {% if direction == 'DESC' %}selected{% endif %}>Descendente</option>
+                </select>
+            </div>
+            <button type="submit">Aplicar Filtros</button>
+        </form>
+
+        <!-- Tabla de empleados -->
+        {% if empleados %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID Empleado</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Salario</th>
+                    <th>Área de Trabajo</th>
+                    <th>Cargo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for empleado in empleados %}
+                <tr>
+                    <td>{{ empleado.idEmpleado }}</td>
+                    <td>{{ empleado.nombre }}</td>
+                    <td>{{ empleado.apellido }}</td>
+                    <td>{{ empleado.salario }}</td>
+                    <td>{{ empleado.areaTrabajo }}</td>
+                    <td>{{ empleado.cargo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">No hay empleados disponibles para mostrar.</div>
+        {% endif %}
+
+        <!-- Sección de Gráficos -->
+        <div class="chart-container">
+            <h2>Gráficos Comparativos</h2>
+
+            <!-- Gráfico de torta por cargos -->
+            <div>
+                <h3>Distribución de Empleados por Cargo</h3>
+                <img src="data:image/png;base64,{{ img_cargos }}" alt="Gráfico de Cargos">
+            </div>
+
+            <!-- Gráfico de torta por áreas de trabajo -->
+            <div>
+                <h3>Distribución de Empleados por Área de Trabajo</h3>
+                <img src="data:image/png;base64,{{ img_areas }}" alt="Gráfico de Áreas de Trabajo">
+            </div>
+
+            <!-- Gráfico de barras para salarios por áreas de trabajo -->
+            <div>
+                <h3>Salario Promedio por Área de Trabajo</h3>
+                <img src="data:image/png;base64,{{ img_salarios_area }}" alt="Gráfico de Salarios">
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

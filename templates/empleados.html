@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css">
+
+    <title>Lista de Empleados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h3 {
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        .form-control, .btn {
+            border-radius: 5px;
+        }
+        .table {
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .table th, .table td {
+            text-align: center;
+            padding: 12px;
+        }
+        .table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .section-title {
+            margin-top: 40px;
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Lista de Empleados</h1>
+
+        <!-- Filtro de Ordenamiento -->
+        <div class="section-title">
+            <h3>Ordenar Empleados</h3>
+        </div>
+        <form method="GET" action="{{ url_for('empleados') }}" class="row g-3">
+            <div class="col-md-4">
+                <label for="ordenar_por" class="form-label">Ordenar por:</label>
+                <select name="ordenar_por" id="ordenar_por" class="form-control">
+                    <option value="nombre" {% if ordenar_por == 'nombre' %}selected{% endif %}>Nombre</option>
+                    <option value="cargo" {% if ordenar_por == 'cargo' %}selected{% endif %}>Cargo</option>
+                    <option value="eps" {% if ordenar_por == 'eps' %}selected{% endif %}>EPS</option>
+                    <option value="pension" {% if ordenar_por == 'pension' %}selected{% endif %}>Pensión</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="direccion" class="form-label">Dirección:</label>
+                <select name="direccion" id="direccion" class="form-control">
+                    <option value="asc" {% if direccion == 'asc' %}selected{% endif %}>Ascendente</option>
+                    <option value="desc" {% if direccion == 'desc' %}selected{% endif %}>Descendente</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Ordenar</button>
+            </div>
+        </form>
+
+        <!-- Tabla de Empleados -->
+        <div class="section-title">
+            <h3>Empleados Registrados</h3>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Id Empleado</th>
+                    <th>Nombre</th>
+                    <th>Cargo</th>
+                    <th>Área de Trabajo</th>
+                    <th>Salario</th>
+                    <th>EPS</th>
+                    <th>Pensión</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for empleado in empleados %}
+                <tr>
+                    <td>{{ empleado.idEmpleado }}</td>
+                    <td>{{ empleado.nombre }}</td>
+                    <td>{{ empleado.cargo }}</td>
+                    <td>{{ empleado.area_trabajo }}</td>
+                    <td>{{ empleado.salario }}</td>
+                    <td>{{ empleado.eps }}</td>
+                    <td>{{ empleado.pension }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <div class="container">
+        <!-- Título de la sección -->
+        <h1 class="mt-5">Empleados con Novedades</h1>
+    
+        <!-- Filtro por rango de fechas -->
+        <div class="section-title">
+            <h3>Filtrar empleados por rango de fechas</h3>
+        </div>
+    
+        <!-- Formulario de filtrado por fechas -->
+        <form method="GET" action="{{ url_for('novedades_empleados') }}" class="row g-3">
+            <div class="col-md-6">
+                <label for="fecha_inicio" class="form-label">Fecha de inicio (MM/AAAA):</label>
+                <input type="text" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}" placeholder="MM/AAAA" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label for="fecha_fin" class="form-label">Fecha de fin (MM/AAAA):</label>
+                <input type="text" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}" placeholder="MM/AAAA" class="form-control" required>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary mt-3">Filtrar</button>
+            </div>
+        </form>
+    
+        <!-- Tabla de Empleados con Novedades -->
+        <div class="section-title mt-4">
+            <h3>Empleados con novedades:</h3>
+        </div>
+    
+        {% if empleados %}
+            <table class="table table-bordered table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>ID Empleado</th>
+                        <th>Nombre</th>
+                        <th>Cargo</th>
+                        <th>Área de Trabajo</th>
+                        <th>Salario</th>
+                        <th>EPS</th>
+                        <th>Pensión</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empleado in empleados %}
+                    <tr>
+                        <td>{{ empleado.idEmpleado }}</td>
+                        <td>{{ empleado.nombre }}</td>
+                        <td>{{ empleado.cargo }}</td>
+                        <td>{{ empleado.areatrabajo }}</td>
+                        <td>{{ empleado.salario }}</td>
+                        <td>{{ empleado.eps }}</td>
+                        <td>{{ empleado.pension }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p><strong>{{ empleados|length }}</strong> empleados con novedades en el rango seleccionado.</p>
+        {% else %}
+            <p>No hay empleados con novedades en el rango seleccionado.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Scripts de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    
+
+
+
+
+
+
+
+
+    <div class="container">
+        <!-- Título de la sección -->
+        <h1 class="mt-5">Detalle de Novedades de Empleados</h1>
+    
+        <!-- Subtítulo de la sección -->
+        <div class="section-title">
+            <h3>Filtrar empleados por rango de fechas, área de trabajo y cargo</h3>
+        </div>
+    
+        <!-- Formulario de filtrado -->
+        <form method="GET" action="{{ url_for('detalle_novedades_empleados') }}" class="row g-3">
+            <div class="col-md-6">
+                <label for="fecha_inicio" class="form-label">Fecha de inicio (MM/AAAA):</label>
+                <input type="text" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}" placeholder="MM/AAAA" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label for="fecha_fin" class="form-label">Fecha de fin (MM/AAAA):</label>
+                <input type="text" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}" placeholder="MM/AAAA" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label for="areatrabajo" class="form-label">Área de Trabajo:</label>
+                <select name="areatrabajo" id="areatrabajo" class="form-select">
+                    <option value="">Seleccione Área de Trabajo</option>
+                    {% for area in areas_trabajo %}
+                        <option value="{{ area.idAreaTrabajo }}" {% if area.idAreaTrabajo == areatrabajo %} selected {% endif %}>{{ area.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="cargo" class="form-label">Cargo:</label>
+                <select name="idCargo" id="cargo" class="form-select" required>
+                    <option value="" disabled selected>Seleccione un Cargo</option>
+                    {% for cargo in cargos %}
+                        <option value="{{ cargo.idCargo }}" {% if cargo.idCargo == idCargo %} selected {% endif %}>{{ cargo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary mt-3">Filtrar</button>
+            </div>
+        </form>
+    
+        <!-- Tabla de empleados con novedades -->
+        <div class="section-title mt-4">
+            <h3>Empleados con novedades:</h3>
+        </div>
+    
+        {% if empleados %}
+            <table class="table table-bordered table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>ID Empleado</th>
+                        <th>Nombre</th>
+                        <th>Cargo</th>
+                        <th>Área de Trabajo</th>
+                        <th>Salario</th>
+                        <th>Fecha de Ingreso</th>
+                        <th>EPS</th>
+                        <th>Pensión</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empleado in empleados %}
+                        <tr>
+                            <td>{{ empleado.idEmpleado }}</td>
+                            <td>{{ empleado.nombre }}</td>
+                            <td>{{ empleado.cargo }}</td>
+                            <td>{{ empleado.area_trabajo }}</td>
+                            <td>{{ empleado.salario }}</td>
+                            <td>{{ empleado.fechaIngreso }}</td>
+                            <td>{{ empleado.eps }}</td>
+                            <td>{{ empleado.pension }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p><strong>{{ empleados|length }}</strong> empleados con novedades en el rango seleccionado.</p>
+        {% else %}
+            <p>No hay empleados con novedades en el rango seleccionado.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Scripts de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="container">
+        <!-- Título de la sección -->
+        <h1 class="mt-5">Cantidad de Incapacidades</h1>
+    
+        <!-- Subtítulo de la sección -->
+        <div class="section-title">
+            <h3>Filtrar por rango de fechas:</h3>
+        </div>
+    
+        <!-- Formulario de filtrado -->
+        <form method="GET" action="{{ url_for('cantidad_incapacidades') }}" class="row g-3">
+            <div class="col-md-6">
+                <label for="fecha_inicio" class="form-label">Fecha de inicio (MM/AAAA):</label>
+                <input type="text" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}" placeholder="MM/AAAA" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label for="fecha_fin" class="form-label">Fecha de fin (MM/AAAA):</label>
+                <input type="text" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}" placeholder="MM/AAAA" class="form-control" required>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary mt-3">Filtrar</button>
+            </div>
+        </form>
+    
+        <!-- Sección de resultados -->
+        <div class="section-title mt-4">
+            <h3>Total de Incapacidades:</h3>
+        </div>
+    
+        <p>En el rango de fechas de <strong>{{ fecha_inicio }}</strong> a <strong>{{ fecha_fin }}</strong>: <strong>{{ cantidad_incapacidades }}</strong> incapacidades registradas.</p>
+    </div>
+    
+
+
+
+
+    <div class="container mt-5">
+        <!-- Título de la página -->
+        <h1 class="text-center mb-4">Listado de Incapacidades</h1>
+    
+        <!-- Botón de depuración con estilo -->
+        <button id="debugButton" class="btn btn-warning btn-lg w-100 mb-3">Ver datos de la consulta</button>
+    
+        <!-- Div donde se mostrarán los resultados -->
+        <div id="debugResults" style="display:none; margin-top: 20px;">
+            <h4 class="text-info">Resultados de la consulta:</h4>
+            <pre id="resultsText" class="bg-light p-3 border rounded"></pre>
+        </div>
+    
+        <!-- Botón para volver al listado de incapacidades -->
+        <a href="{{ url_for('cantidad_incapacidades') }}" class="btn btn-primary btn-lg w-100 mt-3">Volver al Listado</a>
+    </div>
+    
+    <script>
+        // Al hacer clic en el botón de depuración, hacer una solicitud AJAX
+        document.getElementById('debugButton').addEventListener('click', function() {
+            fetch('/debug_incapacidades')
+                .then(response => response.json())
+                .then(data => {
+                    // Mostrar los resultados en el div
+                    document.getElementById('debugResults').style.display = 'block';
+                    document.getElementById('resultsText').textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+    
+    
+</body>
+</html>
